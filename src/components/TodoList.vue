@@ -1,5 +1,6 @@
 <template>
   <div class="col mb-3">
+    <h4>Задачи</h4>
     <ul class="todo-list row m-0 p-0">
       <li
         is="todo-item"
@@ -8,6 +9,7 @@
         v-for="(todo, index) in listTodos"
         :key="index"
       ></li>
+
     </ul>
   </div>
 </template>

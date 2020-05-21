@@ -1,8 +1,10 @@
-const DATA_KEY = 'todo-list';
+import {db} from '../db.js'
+
+const TABLE = 'todos';
 
 const getters = {
   listTodos(state, getters) {
-    const reversed = state.todos.slice(0).reverse();
+    const reversed = state.todos;
     const paged = [],
       todoOnPage = 10,
       length = reversed.length;
@@ -11,42 +13,76 @@ const getters = {
     }
     return paged[getters.getActivePage];
   },
-  getTodoById(state) {
-    return id => state.todo.find(todo => todo.id === id);
-  },
   lengthOfAllTodos(state) {
     return state.todos.length;
-  }
+  },
+  getTodo(state) {
+    return id => state.todos.find(record => record.id === id);
+  },
 };
 
 const mutations = {
-  addTodo(state, todo) {
-    state.todos = [...state.todos, todo];
+  addBulk(state, records) {
+    state.todos = records.reverse();
   },
-  addTodos(state, todos) {
-    state.todos = [...state.todos, ...todos];
+  recordAdd(state, record) {
+    state.todos.unshift(record);
   },
-  deleteTodo(state, id) {
-    state.todos = state.todos.filter(todo => todo.id !== id);
+  recordUpdate(state, record) {
+    const index = state.todos.findIndex(rec =>
+      record.id === rec.id
+    );
+    if (index > -1) {
+      state.todos.splice(index, 1, record)
+    }
   },
-  changeComlitionTodo(state, id) {
-    const indexTodo = state.todos.findIndex(todo => todo.id === id);
-    state.todos[indexTodo].complite = !state.todos[indexTodo].complite;
+  recordDelete(state, record) {
+    const index = state.todos.findIndex(rec =>
+      record.id === rec.id
+    );
+    if (index > -1) {
+      state.todos.splice(index, 1)
+    }
   }
 };
 
 const actions = {
-  fetchTodos({ commit }) {
-    const saved = localStorage.getItem(DATA_KEY);
-    if (saved) {
-      const todos = JSON.parse(saved);
-      console.log(typeof todos, todos);
-
-      commit('addTodos', todos);
-    }
+  fetchTodos({commit}) {
+    db.collection(TABLE)
+      .orderBy('timestamp')
+      .get()
+      .then(querySnapshot => {
+        const documents = querySnapshot.docs.map(doc => {
+          return {...doc.data(), id: doc.id}
+        });
+        commit('addBulk', documents);
+      })
   },
-  saveToStorage({ state }) {
-    localStorage.setItem(DATA_KEY, JSON.stringify(state.todos));
+  createRecord({commit, dispatch}, task) {
+    db.collection(TABLE)
+      .add(task)
+      .then(() => {
+        commit('recordAdd', task)
+      })
+      .then(() => {
+        dispatch('fetchTodos');
+      })
+  },
+  deleteRecord({commit}, task) {
+    db.collection(TABLE)
+      .doc(task.id)
+      .delete()
+      .then(() => {
+        commit('recordDelete', task)
+      })
+  },
+  updateRecord({commit}, task) {
+    db.collection(TABLE)
+      .doc(task.id)
+      .set(task)
+      .then(() => {
+        commit('recordUpdate', task)
+      })
   }
 };
 
