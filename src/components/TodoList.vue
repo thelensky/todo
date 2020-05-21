@@ -5,9 +5,9 @@
       <li
         is="todo-item"
         v-bind:todo="todo"
-        v-bind:index="index"
-        v-for="(todo, index) in listTodos"
-        :key="index"
+        v-bind:index="todo.index"
+        v-for="(todo) in listTodos"
+        :key="todo.id"
       ></li>
 
     </ul>

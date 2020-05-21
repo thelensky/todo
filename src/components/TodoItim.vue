@@ -5,7 +5,7 @@
   >
     <div class="d-flex align-items-center">
       <span>
-        <span class="mr-1">{{index + 1}})</span>
+        <span class="mr-1">{{index}})</span>
         {{todo.task}}
       </span>
       <button class="btn ml-auto">

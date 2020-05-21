@@ -36,7 +36,7 @@
 
 <script>
   import cross from "../assets/times-solid.svg";
-  import {mapActions} from "vuex";
+  import {mapActions, mapMutations} from "vuex";
 
   export default {
     props: {
@@ -52,20 +52,28 @@
     },
     methods: {
       ...mapActions(["createRecord", 'deleteRecord', 'updateRecord']),
+      ...mapMutations(['setActivePage']),
       addCard() {
         this.createRecord({
           task: this.text,
           complite: false,
           timestamp: new Date()
+        }).then(() => {
+          this.setActivePage(0);
         });
+
         this.text = "";
       },
       clear() {
         this.text = "";
       },
       deleteCard() {
-        this.deleteRecord(this.todo);
-        this.goBack();
+        this.deleteRecord(this.todo).then(() => {
+          this.setActivePage(0);
+          this.goBack();
+        });
+
+
       },
       updateCard() {
         this.updateRecord({...this.todo, task: this.text})

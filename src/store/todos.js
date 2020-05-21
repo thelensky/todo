@@ -48,14 +48,21 @@ const mutations = {
 
 const actions = {
   fetchTodos({commit}) {
+    commit('setLoading', true);
     db.collection(TABLE)
       .orderBy('timestamp')
       .get()
       .then(querySnapshot => {
-        const documents = querySnapshot.docs.map(doc => {
-          return {...doc.data(), id: doc.id}
+        const length = querySnapshot.docs.length;
+        const documents = querySnapshot.docs.map((doc, i) => {
+          return {
+            ...doc.data(),
+            id: doc.id,
+            index: (length - i)
+          }
         });
         commit('addBulk', documents);
+        commit('setLoading', false);
       })
   },
   createRecord({commit, dispatch}, task) {

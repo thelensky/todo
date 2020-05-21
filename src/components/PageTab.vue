@@ -1,12 +1,14 @@
 <template>
   <li class="page-item" :class="{active: isActive}">
-    <button class="page-link" @click="setActivePage(page)">{{page
-      +1}}</button>
+    <router-link class="page-link"
+                 :to="{path: `/record/page/${page + 1}`}">
+      {{page +1}}
+    </router-link>
   </li>
 </template>
 
 <script>
-  import {mapGetters, mapMutations} from "vuex";
+  import {mapGetters} from "vuex";
 
   export default {
     props: ["page"],
@@ -15,9 +17,6 @@
       isActive() {
         return this.page === this.getActivePage;
       }
-    },
-    methods: {
-      ...mapMutations(["setActivePage"])
     }
   };
 </script>
